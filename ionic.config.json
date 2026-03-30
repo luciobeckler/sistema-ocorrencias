@@ -1,0 +1,7 @@
+{
+  "name": "sistema-ocorrencias",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular-standalone"
+}
