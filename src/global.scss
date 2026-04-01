@@ -34,4 +34,17 @@
 
 /* @import "@ionic/angular/css/palettes/dark.always.css"; */
 /* @import "@ionic/angular/css/palettes/dark.class.css"; */
-@import '@ionic/angular/css/palettes/dark.system.css';
+@import "@ionic/angular/css/palettes/dark.system.css";
+
+.native-input {
+  width: 100%;
+  padding: 5px 0;
+  border: none;
+  background: transparent;
+  color: inherit;
+}
+
+ion-label.label-invalid {
+  /* Usa a variável de cor 'danger' do Ionic */
+  color: var(--ion-color-danger) !important;
+}

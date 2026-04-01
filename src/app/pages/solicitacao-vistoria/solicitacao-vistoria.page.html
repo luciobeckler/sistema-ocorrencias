@@ -1,0 +1,266 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-title>Pedir Vistoria</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <p class="instrucoes">
+    Preencha os dados abaixo para enviar seu pedido de vistoria para a Defesa
+    Civil.
+  </p>
+
+  <form [formGroup]="form">
+    <h3>1. Seus Dados</h3>
+
+    <ion-list lines="full">
+      <ion-item>
+        <ion-input
+          label="Seu Nome Completo"
+          labelPlacement="stacked"
+          formControlName="nome"
+          placeholder="Ex: Maria da Silva"
+        ></ion-input>
+      </ion-item>
+
+      <ion-item>
+        <ion-label position="stacked">CPF</ion-label>
+        <input
+          type="text"
+          formControlName="cpf"
+          mask="000.000.000-00"
+          placeholder="000.000.000-00"
+          class="native-input"
+        />
+      </ion-item>
+
+      <ion-item>
+        <ion-input
+          label="Carteira de Identidade (RG)"
+          labelPlacement="stacked"
+          formControlName="identidade"
+          placeholder="Ex: MG-12.345.678"
+        ></ion-input>
+      </ion-item>
+
+      <ion-item>
+        <ion-input
+          label="Órgão Emissor"
+          labelPlacement="stacked"
+          formControlName="orgaoEmissor"
+          placeholder="Ex: PCMG"
+        ></ion-input>
+      </ion-item>
+
+      <ion-item>
+        <ion-label position="stacked">Celular (WhatsApp)</ion-label>
+        <input
+          type="tel"
+          formControlName="celular"
+          mask="(00) 00000-0000"
+          placeholder="(00) 00000-0000"
+          class="native-input"
+        />
+      </ion-item>
+
+      <ion-item>
+        <ion-label position="stacked">Telefone Fixo (Opcional)</ion-label>
+        <input
+          type="tel"
+          formControlName="telefone"
+          mask="(00) 0000-0000"
+          placeholder="(00) 0000-0000"
+          class="native-input"
+        />
+      </ion-item>
+
+      <ion-item>
+        <ion-input
+          label="Seu E-mail"
+          labelPlacement="stacked"
+          type="email"
+          formControlName="email"
+          placeholder="email@exemplo.com"
+        ></ion-input>
+      </ion-item>
+    </ion-list>
+
+    <h3>2. Onde é o problema?</h3>
+
+    <ion-list lines="full">
+      <ion-item>
+        <ion-checkbox
+          [checked]="form.get('estouNoLocal')?.value"
+          (ionChange)="form.get('estouNoLocal')?.setValue($event.detail.checked)"
+          labelPlacement="end"
+          justify="start"
+        >
+          Estou fisicamente no local do problema neste momento.
+        </ion-checkbox>
+      </ion-item>
+
+      <ion-item>
+        <ion-label position="stacked">CEP</ion-label>
+        <input
+          type="text"
+          formControlName="cep"
+          mask="00000-000"
+          placeholder="00000-000"
+          (blur)="buscarCEP()"
+          class="native-input"
+        />
+      </ion-item>
+
+      <ion-item>
+        <ion-input
+          label="Endereço (Rua / Avenida)"
+          labelPlacement="stacked"
+          formControlName="endereco"
+        ></ion-input>
+      </ion-item>
+
+      <ion-item>
+        <ion-input
+          id="inputNumero"
+          label="Número"
+          labelPlacement="stacked"
+          type="text"
+          formControlName="numero"
+          placeholder="Ex: 123 ou S/N"
+        ></ion-input>
+      </ion-item>
+
+      <ion-item>
+        <ion-label position="stacked">Bairro (Digite para buscar)</ion-label>
+        <ion-input
+          formControlName="bairro"
+          placeholder="Ex: Centro"
+          autocomplete="off"
+        ></ion-input>
+      </ion-item>
+
+      <ion-list
+        *ngIf="mostrarListaBairros && bairrosFiltrados.length > 0"
+        class="menu-suspenso-bairros"
+      >
+        <ion-item
+          *ngFor="let bairro of bairrosFiltrados"
+          button
+          (click)="selecionarBairro(bairro)"
+        >
+          {{ bairro }}
+        </ion-item>
+      </ion-list>
+
+      <ion-item *ngIf="mostrarListaBairros && bairrosFiltrados.length === 0">
+        <ion-label color="medium"
+          >Nenhum bairro com esse nome na lista oficial.</ion-label
+        >
+      </ion-item>
+
+      <div
+        class="ion-padding-start ion-padding-bottom"
+        *ngIf="form.get('bairro')?.hasError('bairroInvalido') && form.get('bairro')?.touched"
+      >
+        <span style="color: var(--ion-color-danger); font-size: 12px"
+          >Por favor, selecione um bairro válido da lista.</span
+        >
+      </div>
+
+      <ion-item>
+        <ion-input
+          label="Complemento (Opcional)"
+          labelPlacement="stacked"
+          formControlName="complemento"
+          placeholder="Casa fundos, Bloco 2..."
+        ></ion-input>
+      </ion-item>
+
+      <ion-item>
+        <ion-input
+          label="Referência (Opcional)"
+          labelPlacement="stacked"
+          formControlName="referencia"
+          placeholder="Na esquina da rua..."
+        ></ion-input>
+      </ion-item>
+
+      <ion-item>
+        <ion-input
+          label="Número do IPTU (Opcional)"
+          labelPlacement="stacked"
+          formControlName="numeroIptu"
+          placeholder="Ex: 12345678"
+        ></ion-input>
+      </ion-item>
+    </ion-list>
+
+    <h3>3. Descrição e Evidências</h3>
+
+    <ion-list lines="full">
+      <ion-item>
+        <ion-input
+          label="Descrição do Ocorrido"
+          labelPlacement="stacked"
+          formControlName="descricao"
+          placeholder="Queda do muro; Rachaduras..."
+        ></ion-input>
+      </ion-item>
+    </ion-list>
+
+    <p class="instrucoes-menor ion-padding-top">
+      1. Foto do Comprovante de Residência (Obrigatório)
+    </p>
+
+    <ion-button expand="block" fill="outline" (click)="adicionarComprovante()">
+      {{ comprovanteResidenciaFoto ? 'Trocar ' : 'Tirar Foto do Comprovante' }}
+    </ion-button>
+
+    <div class="fotos-container" *ngIf="comprovanteResidenciaFoto">
+      <div class="foto-item">
+        <img
+          [src]="comprovanteResidenciaFoto.webPath"
+          alt="Comprovante de Residência"
+        />
+        <ion-button color="danger" size="small" (click)="removerComprovante()"
+          >Remover</ion-button
+        >
+      </div>
+    </div>
+
+    <p class="instrucoes-menor ion-padding-top">
+      2. Fotos do Local Afetado (Obrigatório)
+    </p>
+
+    <ion-button expand="block" fill="outline" (click)="adicionarFoto()">
+      Adicionar Foto do Local
+    </ion-button>
+
+    <div class="fotos-container" *ngIf="fotosSelecionadas.length > 0">
+      <div
+        class="foto-item"
+        *ngFor="let foto of fotosSelecionadas; let i = index"
+      >
+        <img [src]="foto.webPath" alt="Foto do problema" />
+        <ion-button color="danger" size="small" (click)="removerFoto(i)"
+          >Remover</ion-button
+        >
+      </div>
+    </div>
+
+    <div style="height: 40px"></div>
+  </form>
+</ion-content>
+
+<ion-footer class="ion-no-border">
+  <ion-toolbar>
+    <ion-button
+      expand="block"
+      color="primary"
+      class="ion-margin"
+      (click)="enviarSolicitacao()"
+    >
+      Enviar Pedido de Vistoria
+    </ion-button>
+  </ion-toolbar>
+</ion-footer>

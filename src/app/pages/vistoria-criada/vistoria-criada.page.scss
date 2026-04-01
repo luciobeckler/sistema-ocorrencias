@@ -1,0 +1,56 @@
+.success-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  text-align: center;
+
+  .success-icon {
+    font-size: 8rem;
+    margin-bottom: 20px;
+  }
+
+  h2 {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-bottom: 10px;
+    color: var(--ion-color-dark);
+  }
+
+  .description {
+    font-size: 1rem;
+    color: var(--ion-color-medium);
+    margin-bottom: 30px;
+  }
+
+  .protocolo-card {
+    background: var(--ion-color-light);
+    border-radius: 8px;
+    padding: 20px;
+    width: 100%;
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+
+    .protocolo-label {
+      font-size: 0.9rem;
+      color: var(--ion-color-medium);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .protocolo-numero {
+      font-size: 1.8rem;
+      font-weight: bold;
+      color: var(--ion-color-primary);
+      margin-top: 5px;
+    }
+  }
+
+  .aviso {
+    font-size: 0.85rem;
+    color: var(--ion-color-danger);
+    font-weight: 500;
+  }
+}

@@ -1,0 +1,32 @@
+<ion-content class="ion-padding" scroll-y="false">
+  <div class="success-container">
+    <ion-icon
+      name="checkmark-circle"
+      color="success"
+      class="success-icon"
+    ></ion-icon>
+
+    <h2>Solicitação Enviada!</h2>
+
+    <p class="description">
+      Sua solicitação de vistoria foi registrada com sucesso e encaminhada para
+      a Defesa Civil.
+    </p>
+
+    <div class="protocolo-card">
+      <span class="protocolo-label">Número do Protocolo</span>
+      <span class="protocolo-numero"
+        >{{ numeroProtocolo || '20260316-1234' }}</span
+      >
+    </div>
+
+    <p class="aviso">
+      Guarde este número. Ele será necessário para acompanhar o andamento do seu
+      pedido. Em caso de risco iminente, ligue imediatamente para 183.
+    </p>
+  </div>
+</ion-content>
+
+<ion-footer class="ion-no-border">
+  <ion-toolbar class="ion-padding-horizontal ion-padding-bottom"> </ion-toolbar>
+</ion-footer>
