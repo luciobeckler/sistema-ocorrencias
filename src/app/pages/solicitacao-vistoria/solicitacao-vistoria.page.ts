@@ -28,9 +28,6 @@ import {
   IonLabel,
   IonFooter,
   IonCheckbox,
-  IonIcon,
-  IonButtons,
-  IonBackButton,
 } from '@ionic/angular/standalone';
 import { NgxMaskDirective } from 'ngx-mask';
 import { Router } from '@angular/router';
@@ -54,9 +51,6 @@ import {
   standalone: true,
   styleUrls: ['./solicitacao-vistoria.page.scss'],
   imports: [
-    IonBackButton,
-    IonButtons,
-    IonIcon,
     IonCheckbox,
     IonFooter,
     IonLabel,
@@ -239,44 +233,20 @@ export class SolicitacaoVistoriaPage implements OnInit {
   }
 
   async enviarSolicitacao() {
-    if (this.form.invalid) {
-      this.alertCtrl
-        .create({
-          header: 'Formulário Inválido',
-          message: 'Preencha todos os campos obrigatórios corretamente',
-          buttons: ['OK'],
-        })
-        .then((alert) => alert.present());
-      return;
-    }
-
-    if (!this.comprovanteResidenciaFoto) {
-      // Assuming this is a File object in your component class
-      this.alertCtrl
-        .create({
-          header: 'Comprovante de residência faltando.',
-          message:
-            'O envio da foto do Comprovante de Residência é obrigatório.',
-          buttons: ['OK'],
-        })
-        .then((alert) => alert.present());
-      return;
-    }
-
-    if (this.fotosSelecionadas.length === 0) {
-      // Assuming this is a File[] in your component class
-      this.alertCtrl
-        .create({
-          header: 'Fotos do local faltando.',
-          message: 'Adicione pelo menos uma foto do local.',
-          buttons: ['OK'],
-        })
-        .then((alert) => alert.present());
+    if (
+      this.form.invalid ||
+      !this.comprovanteResidenciaFoto ||
+      this.fotosSelecionadas.length === 0
+    ) {
+      this.exibirAlerta(
+        'Atenção',
+        'Preencha todos os campos e adicione as fotos obrigatórias.',
+      );
       return;
     }
 
     let loading = await this.loadingCtrl.create({
-      message: 'Obtendo localização e enviando ocorrência...',
+      message: 'Processando solicitação...',
     });
     await loading.present();
 
@@ -284,31 +254,19 @@ export class SolicitacaoVistoriaPage implements OnInit {
 
     // Lógica para capturar o GPS caso o usuário marque a caixa
     if (this.form.get('estouNoLocal')?.value) {
+      loading.message = 'Obtendo localização...';
       try {
         const position = await Geolocation.getCurrentPosition({
           enableHighAccuracy: true,
           timeout: 10000,
         });
         coordenadasGps = `${position.coords.latitude}, ${position.coords.longitude}`;
-      } catch (error) {
-        loading.dismiss();
-        this.alertCtrl
-          .create({
-            header: 'Falha no GPS',
-            message:
-              'Não conseguimos acessar sua localização. Verifique se o GPS está ligado e se o app tem permissão, ou desmarque a opção "Estou no local".',
-            buttons: ['OK'],
-          })
-          .then((alert) => alert.present());
-        return;
+      } catch (gpsError) {
+        console.warn('Falha no GPS', gpsError);
       }
     }
-    loading.dismiss();
 
-    loading = await this.loadingCtrl.create({
-      message: 'Enviando ocorrência...',
-    });
-    await loading.present();
+    loading.message = 'Enviando ocorrência...';
 
     try {
       const recaptchaToken = await this.executeRecaptcha();
@@ -381,6 +339,15 @@ export class SolicitacaoVistoriaPage implements OnInit {
         'Falha no processamento dos arquivos ou na comunicação com o servidor.',
       );
     }
+  }
+
+  async exibirAlerta(header: string, message: string) {
+    const alert = await this.alertCtrl.create({
+      header,
+      message,
+      buttons: ['OK'],
+    });
+    await alert.present();
   }
 
   async executeRecaptcha(): Promise<string> {
