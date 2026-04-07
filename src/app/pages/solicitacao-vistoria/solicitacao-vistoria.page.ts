@@ -28,10 +28,11 @@ import {
   IonLabel,
   IonFooter,
   IonCheckbox,
+  LoadingController,
+  AlertController,
 } from '@ionic/angular/standalone';
 import { NgxMaskDirective } from 'ngx-mask';
 import { Router } from '@angular/router';
-import { LoadingController, AlertController } from '@ionic/angular';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Geolocation } from '@capacitor/geolocation';
 import {
