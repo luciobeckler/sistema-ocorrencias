@@ -301,7 +301,6 @@ export class SolicitacaoVistoriaPage implements OnInit {
   }
 
   async enviarSolicitacao() {
-    debugger;
     if (this.form.invalid) {
       this.alertCtrl
         .create({
@@ -342,7 +341,6 @@ export class SolicitacaoVistoriaPage implements OnInit {
       message: 'Obtendo localização e enviando ocorrência...',
     });
     await loading.present();
-    debugger;
 
     let coordenadasGps = '';
 
