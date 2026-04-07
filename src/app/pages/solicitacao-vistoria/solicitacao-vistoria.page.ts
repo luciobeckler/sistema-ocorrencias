@@ -42,6 +42,11 @@ import {
   ISolicitacaoVistoriaPayload,
 } from 'src/app/interfaces/ISolicitacaoVistoria';
 import { converterPhotoParaBase64 } from 'src/app/helper/photoToBase64';
+import {
+  bairrosSabara,
+  GAS_URL,
+  RECAPTCHA_KEY,
+} from 'src/app/helper/constants';
 
 @Component({
   selector: 'app-solicitacao-vistoria',
@@ -76,76 +81,9 @@ export class SolicitacaoVistoriaPage implements OnInit {
   protocolo: string = '';
   sucesso: boolean = false;
 
-  bairrosSabara: string[] = [
-    'Adelmolândia',
-    'Água Férrea',
-    'Alto do Cabral',
-    'Alto do Fidalgo',
-    'Alvorada',
-    'Ana Lúcia',
-    'Área Rural de Sabará',
-    'Arraial Velho',
-    'Borba Gato',
-    'Borges',
-    'Caieira',
-    'Centro',
-    'Conjunto Morada da Serra',
-    'Córrego da Ilha',
-    'Distrito Industrial Simão da Cunha',
-    'Esplanada',
-    'Fogo Apagou',
-    'Itacolomi',
-    'Jardim Castanheiras',
-    'Mangabeiras',
-    'Mangueiras',
-    'Morro da Cruz',
-    'Morro São Francisco',
-    'Nações Unidas',
-    'Nossa Senhora da Conceição',
-    'Nossa Senhora de Fátima',
-    'Nossa Senhora do Ó',
-    'Novo Alvorada',
-    'Novo Horizonte',
-    'Novo Santa Inês',
-    'Paciência',
-    'Padre Chiquinho',
-    'Pompeu',
-    'Praia dos Bandeirantes',
-    'Rio Negro',
-    'Roça Grande',
-    'Rosário',
-    'Santana',
-    'Santo Antônio (Roça Grande)',
-    'São José',
-    'Siderúrgica',
-    'Sobradinho',
-    'Terra Santa',
-    'Valparaíso',
-    'Vila Amélia Moreira',
-    'Vila Bom Retiro',
-    'Vila Campinas',
-    'Vila dos Coqueiros',
-    'Vila Esperança',
-    'Vila Eugênio Rossi',
-    'Vila Francisco de Moura',
-    'Vila Marzagão',
-    'Vila Michel',
-    'Vila Nova Vista',
-    'Vila Real',
-    'Vila Rica',
-    'Vila Santa Cruz',
-    'Vila Santa Rita',
-    'Vila Santo Antônio de Pádua',
-    'Vila São Sebastião',
-  ];
-
   bairrosFiltrados: string[] = [];
   mostrarListaBairros: boolean = false;
   selecaoAutomatica: boolean = false;
-
-  readonly GAS_URL =
-    'https://script.google.com/macros/s/AKfycbzOy8N1a_Ojfpa1IvMlJe5b3HHfrTCpjtECwWUXHijSA38MPJAAp4ZQLzJffIQTXcoc/exec';
-  readonly RECAPTCHA_KEY = '6Lc2N6AsAAAAALHYvWU4qUdHoTlxC2lo0KY9oLBH';
 
   constructor(
     private fb: FormBuilder,
@@ -194,7 +132,7 @@ export class SolicitacaoVistoriaPage implements OnInit {
 
     const script = document.createElement('script');
     script.id = scriptId;
-    script.src = `https://www.google.com/recaptcha/api.js?render=${this.RECAPTCHA_KEY}`;
+    script.src = `https://www.google.com/recaptcha/api.js?render=${RECAPTCHA_KEY}`;
     script.async = true;
     script.defer = true;
     document.head.appendChild(script);
@@ -203,7 +141,7 @@ export class SolicitacaoVistoriaPage implements OnInit {
   bairroValidoValidator(control: AbstractControl): ValidationErrors | null {
     if (!control.value) return null;
     const termoDigitado = control.value.toLowerCase().trim();
-    const bairroExiste = this.bairrosSabara.some(
+    const bairroExiste = bairrosSabara.some(
       (bairroOficial) => bairroOficial.toLowerCase() === termoDigitado,
     );
     return bairroExiste ? null : { bairroInvalido: true };
@@ -221,7 +159,7 @@ export class SolicitacaoVistoriaPage implements OnInit {
       this.bairrosFiltrados = [];
       return;
     }
-    this.bairrosFiltrados = this.bairrosSabara.filter((bairro) =>
+    this.bairrosFiltrados = bairrosSabara.filter((bairro) =>
       bairro.toLowerCase().includes(busca),
     );
     this.mostrarListaBairros = true;
@@ -406,7 +344,7 @@ export class SolicitacaoVistoriaPage implements OnInit {
       };
 
       this.http
-        .post(this.GAS_URL, JSON.stringify(payload), {
+        .post(GAS_URL, JSON.stringify(payload), {
           headers: new HttpHeaders({
             'Content-Type': 'text/plain;charset=utf-8',
           }),
@@ -460,7 +398,7 @@ export class SolicitacaoVistoriaPage implements OnInit {
 
       grecaptcha.ready(() => {
         grecaptcha
-          .execute(this.RECAPTCHA_KEY, { action: 'submit' })
+          .execute(RECAPTCHA_KEY, { action: 'submit' })
           .then((token: string) => resolve(token))
           .catch((err: any) =>
             reject(new Error('Falha ao gerar o token de segurança.')),
