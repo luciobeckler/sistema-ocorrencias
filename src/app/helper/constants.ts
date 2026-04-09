@@ -1,5 +1,5 @@
 export const GAS_URL =
-  'https://script.google.com/macros/s/AKfycbw2_euKNORH5H56-Llkg3U9S8cM4ElAvhMLq3h6YMTHbuM2-MsRjWjKyVGUwvyi15ut/exec';
+  'https://script.google.com/macros/s/AKfycbw1zJitjpeaOQ40_uGEiVM7RcdTmocO6FyMU-0kw0tjBafrH158OmjLvMyHxjsHGSA/exec';
 
 export const RECAPTCHA_KEY = '6Lc2N6AsAAAAALHYvWU4qUdHoTlxC2lo0KY9oLBH';
 
