@@ -26,16 +26,24 @@ import { addIcons } from 'ionicons';
     FormsModule,
   ],
 })
-export class VistoriaCriadaPage implements OnInit {
+// Remova o OnInit e implemente as funções do Ionic
+export class VistoriaCriadaPage {
   numeroProtocolo: string = '';
 
   constructor(private router: Router) {}
 
-  ngOnInit() {
-    this.numeroProtocolo = history.state.protocolo;
+  ionViewWillEnter() {
+    const currentNavigation = this.router.getCurrentNavigation();
+
+    if (currentNavigation?.extras?.state) {
+      this.numeroProtocolo = currentNavigation.extras.state['protocolo'];
+    } else {
+      this.numeroProtocolo = history.state.protocolo;
+    }
   }
 
   navigateBack() {
+    this.numeroProtocolo = '';
     this.router.navigate(['/solicitacao-vistoria']);
   }
 }
