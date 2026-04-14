@@ -30,6 +30,9 @@ import {
   IonCheckbox,
   LoadingController,
   AlertController,
+  IonListHeader,
+  IonRadio,
+  IonRadioGroup,
 } from '@ionic/angular/standalone';
 import { NgxMaskDirective } from 'ngx-mask';
 import { Router } from '@angular/router';
@@ -52,6 +55,9 @@ import {
   standalone: true,
   styleUrls: ['./solicitacao-vistoria.page.scss'],
   imports: [
+    IonRadio,
+    IonListHeader,
+    IonRadioGroup,
     IonCheckbox,
     IonFooter,
     IonLabel,
@@ -234,14 +240,16 @@ export class SolicitacaoVistoriaPage implements OnInit {
   }
 
   async enviarSolicitacao() {
+    // 1. Validação rigorosa
     if (
       this.form.invalid ||
       !this.comprovanteResidenciaFoto ||
       this.fotosSelecionadas.length === 0
     ) {
+      this.form.markAllAsTouched(); // Força a tela a mostrar os textos em vermelho
       this.exibirAlerta(
         'Atenção',
-        'Preencha todos os campos e adicione as fotos obrigatórias.',
+        'Preencha todos os campos obrigatórios e adicione as fotos.',
       );
       return;
     }
@@ -253,29 +261,44 @@ export class SolicitacaoVistoriaPage implements OnInit {
 
     let coordenadasGps = '';
 
-    // Lógica para capturar o GPS caso o usuário marque a caixa
-    if (this.form.get('estouNoLocal')?.value) {
-      loading.message = 'Obtendo localização...';
+    // 2. Lógica blindada de GPS
+    const statusNoLocal = this.form.get('estouNoLocal')?.value;
+
+    if (statusNoLocal === 'sim') {
+      loading.message = 'Solicitando permissão e obtendo GPS...';
+
       try {
+        // Passo A: Verifica se já tem permissão, se não, solicita na hora
+        const checkPerm = await Geolocation.checkPermissions();
+        if (checkPerm.location !== 'granted') {
+          const reqPerm = await Geolocation.requestPermissions();
+          if (reqPerm.location !== 'granted') {
+            throw new Error('Permissão negada pelo usuário.');
+          }
+        }
+
+        // Passo B: Captura a posição
         const position = await Geolocation.getCurrentPosition({
           enableHighAccuracy: true,
-          timeout: 10000,
+          timeout: 10000, // Desiste após 10 segundos
         });
+
         coordenadasGps = `${position.coords.latitude}, ${position.coords.longitude}`;
       } catch (gpsError) {
-        console.warn('Falha no GPS', gpsError);
+        console.warn('Falha na obtenção do GPS:', gpsError);
       }
     }
 
     loading.message = 'Enviando ocorrência...';
 
+    // 3. Montagem do Payload e Envio HTTP
     try {
       const recaptchaToken = await this.executeRecaptcha();
       const formValues = this.form.value;
 
-      const fotosBase64: IArquivoBase64[] = await Promise.all(
-        this.fotosSelecionadas.map(async (foto: Photo, index: number) => {
-          const ext = foto.format || 'jpeg'; // Pega a extensão real gerada pela câmera
+      const fotosBase64 = await Promise.all(
+        this.fotosSelecionadas.map(async (foto: any, index: number) => {
+          const ext = foto.format || 'jpeg';
           return {
             nome: `Imagem_${index}.${ext}`,
             mimetype: `image/${ext}`,
@@ -284,16 +307,14 @@ export class SolicitacaoVistoriaPage implements OnInit {
         }),
       );
 
-      // Processa o comprovante de residência
       const extComprovante = this.comprovanteResidenciaFoto.format || 'jpeg';
-      const comprovanteBase64: IArquivoBase64 = {
+      const comprovanteBase64 = {
         nome: `Comprovante_Residencia.${extComprovante}`,
         mimetype: `image/${extComprovante}`,
         dados: await converterPhotoParaBase64(this.comprovanteResidenciaFoto),
       };
 
-      // Monta o payload final
-      const payload: ISolicitacaoVistoriaPayload = {
+      const payload = {
         ...formValues,
         data: new Date(),
         coordenadas: coordenadasGps,
@@ -310,11 +331,10 @@ export class SolicitacaoVistoriaPage implements OnInit {
         })
         .subscribe({
           next: (resposta: any) => {
+            debugger;
             loading.dismiss();
             this.protocolo = resposta.protocolo;
-            this.sucesso = true;
 
-            // Navigation moved INSIDE the success callback to prevent race conditions
             if (this.protocolo != null) {
               this.router.navigate(['/solicitacao-vistoria/vistoria-criada'], {
                 state: { protocolo: this.protocolo },
@@ -324,19 +344,17 @@ export class SolicitacaoVistoriaPage implements OnInit {
           },
           error: (erro) => {
             loading.dismiss();
-            this.alertCtrl
-              .create({
-                header: 'Erro',
-                message: erro.error?.mensagem || 'Erro ao enviar ocorrência',
-                buttons: ['OK'],
-              })
-              .then((alert) => alert.present());
+            this.exibirAlerta(
+              'Erro',
+              erro.error?.mensagem || 'Erro ao enviar ocorrência.',
+            );
           },
         });
     } catch (error) {
       loading.dismiss();
-      console.error(error);
-      alert(
+      console.error('Erro geral:', error);
+      this.exibirAlerta(
+        'Erro Crítico',
         'Falha no processamento dos arquivos ou na comunicação com o servidor.',
       );
     }

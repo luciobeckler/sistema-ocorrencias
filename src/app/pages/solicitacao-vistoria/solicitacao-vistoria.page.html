@@ -88,16 +88,37 @@
     <h3>2. Onde é o problema?</h3>
 
     <ion-list lines="full">
-      <ion-item>
-        <ion-checkbox
-          [checked]="form.get('estouNoLocal')?.value"
-          (ionChange)="form.get('estouNoLocal')?.setValue($event.detail.checked)"
-          labelPlacement="end"
-          justify="start"
+      <ion-radio-group formControlName="estouNoLocal">
+        <ion-list-header>
+          <ion-label class="ion-text-wrap">
+            <strong
+              >Você está fisicamente no local do problema neste momento?
+              *</strong
+            >
+          </ion-label>
+        </ion-list-header>
+
+        <ion-item>
+          <ion-radio value="sim" justify="start" labelPlacement="end"
+            >Sim, estou no local</ion-radio
+          >
+        </ion-item>
+
+        <ion-item>
+          <ion-radio value="nao" justify="start" labelPlacement="end"
+            >Não, estou relatando de outro lugar</ion-radio
+          >
+        </ion-item>
+      </ion-radio-group>
+
+      <div
+        class="ion-padding-start ion-padding-bottom"
+        *ngIf="form.get('estouNoLocal')?.hasError('required') && form.get('estouNoLocal')?.touched"
+      >
+        <span style="color: var(--ion-color-danger); font-size: 12px"
+          >Esta resposta é obrigatória.</span
         >
-          Estou fisicamente no local do problema neste momento.
-        </ion-checkbox>
-      </ion-item>
+      </div>
 
       <ion-item>
         <ion-label position="stacked">CEP</ion-label>

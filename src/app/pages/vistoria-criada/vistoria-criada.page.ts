@@ -30,14 +30,16 @@ import { addIcons } from 'ionicons';
 export class VistoriaCriadaPage {
   numeroProtocolo: string = '';
 
-  constructor(private router: Router) {}
-
-  ionViewWillEnter() {
+  constructor(private router: Router) {
     const currentNavigation = this.router.getCurrentNavigation();
 
     if (currentNavigation?.extras?.state) {
       this.numeroProtocolo = currentNavigation.extras.state['protocolo'];
-    } else {
+    }
+  }
+
+  ionViewWillEnter() {
+    if (!this.numeroProtocolo && history.state?.protocolo) {
       this.numeroProtocolo = history.state.protocolo;
     }
   }
